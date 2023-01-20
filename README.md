@@ -1,2 +1,2 @@
-# DR4R-ObjectDetection
-Object detection Study for DR4R
+# DR4R-SSDLite
+SSDLite for DR4R
