@@ -1,8 +1,8 @@
 import torch.nn as nn
 import torch.nn.functional as F
 import torch
-from .utils.boxloss import *
-from .SmoothL1Loss import SmoothL1Loss, convert_to_one_hot
+from loss.utils.boxloss import *
+from loss.SmoothL1Loss import SmoothL1Loss, convert_to_one_hot
 
 class FocalSigmoidLossFuncV2(torch.autograd.Function):
     '''

@@ -1,15 +1,17 @@
 import torch
 from torch import nn
 import math
-from ..backbone.mobilenetv2 import DepthwiseSeparableConv
+from model.backbone.mobilenetv2 import DepthwiseSeparableConv
 
 class BoxPredictor(nn.Module):
-    def __init__(self, cfg):
+    def __init__(self, num_classes, loss_type, box_per_location: list, out_chans: list):
         super().__init__()
-        self.cfg = cfg
+        assert len(box_per_location) == len(out_chans)
+        self.num_classes = num_classes
+        self.output_channels = out_chans
         self.cls_headers = nn.ModuleList()
         self.reg_headers = nn.ModuleList()
-        for level, (boxes_per_location, out_channels) in enumerate(zip(cfg.MODEL.PRIORS.BOXES_PER_LOCATION, cfg.MODEL.BACKBONE.OUT_CHANNELS)):
+        for level, (boxes_per_location, out_channels) in enumerate(zip(box_per_location, out_chans)):
             cls_head = self.cls_block(level, out_channels, boxes_per_location)
             self.cls_headers.append(cls_head)
 
@@ -17,11 +19,17 @@ class BoxPredictor(nn.Module):
             self.reg_headers.append(reg_head)
         self.reset_parameters()
 
-        if self.cfg.MODEL.BOX_HEAD.LOSS == 'FocalLoss':
+        if loss_type == 'FocalLoss':
             for cls_head in self.cls_headers:
                 for m in cls_head.modules():
                     if isinstance(m, nn.Conv2d):
                         m.apply(self.initialize_prior)
+
+    def cls_block(self, level, out_channels, boxes_per_location):
+        raise NotImplementedError
+
+    def reg_block(self, level, out_channels, boxes_per_location):
+        raise NotImplementedError
 
     def reset_parameters(self):
         for m in self.modules():
@@ -43,20 +51,20 @@ class BoxPredictor(nn.Module):
             bbox_pred.append(reg_header(feature).permute(0, 2, 3, 1).contiguous())
 
         batch_size = features[0].shape[0]
-        cls_logits = torch.cat([c.view(c.shape[0], -1) for c in cls_logits], dim=1).view(batch_size, -1, self.cfg.MODEL.NUM_CLASSES)
+        cls_logits = torch.cat([c.view(c.shape[0], -1) for c in cls_logits], dim=1).view(batch_size, -1, self.num_classes)
         bbox_pred = torch.cat([l.view(l.shape[0], -1) for l in bbox_pred], dim=1).view(batch_size, -1, 4)
 
         return cls_logits, bbox_pred
 
 class SSDLiteBoxPredictor(BoxPredictor):
     def cls_block(self, level, out_channels, boxes_per_location):
-        num_levels = len(self.cfg.MODEL.BACKBONE.OUT_CHANNELS)
+        num_levels = len(self.output_channels)
         if level == num_levels - 1:
-            return nn.Conv2d(out_channels, boxes_per_location * self.cfg.MODEL.NUM_CLASSES, kernel_size=1)
-        return DepthwiseSeparableConv(out_channels, boxes_per_location * self.cfg.MODEL.NUM_CLASSES, kernel_size=3, stride=1, padding=1)
+            return nn.Conv2d(out_channels, boxes_per_location * self.num_classes, kernel_size=1)
+        return DepthwiseSeparableConv(out_channels, boxes_per_location * self.num_classes, stride=1, is_bias=True)
 
     def reg_block(self, level, out_channels, boxes_per_location):
-        num_levels = len(self.cfg.MODEL.BACKBONE.OUT_CHANNELS)
+        num_levels = len(self.output_channels)
         if level == num_levels - 1:
             return nn.Conv2d(out_channels, boxes_per_location * 4, kernel_size=1)
-        return DepthwiseSeparableConv(out_channels, boxes_per_location * 4, kernel_size=3, stride=1, padding=1)
+        return DepthwiseSeparableConv(out_channels, boxes_per_location * 4, stride=1, is_bias=True)

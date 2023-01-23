@@ -35,5 +35,4 @@ class ConvBNReLU(nn.Module):
     def forward(self, x):
         x = self.conv(x)
         x = self.bnlayer(x)
-        x = self.relu(x)
-        return x
+        return self.relu(x)

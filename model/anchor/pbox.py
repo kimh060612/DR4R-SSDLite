@@ -5,15 +5,14 @@ from math import sqrt
 
 
 class PriorBox:
-    def __init__(self, cfg):
-        self.image_size = cfg.INPUT.IMAGE_SIZE
-        prior_config = cfg.MODEL.PRIORS
-        self.feature_maps = prior_config.FEATURE_MAPS
-        self.min_sizes = prior_config.MIN_SIZES
-        self.max_sizes = prior_config.MAX_SIZES
-        self.strides = prior_config.STRIDES
-        self.aspect_ratios = prior_config.ASPECT_RATIOS
-        self.clip = prior_config.CLIP
+    def __init__(self, img_size, prior_config):
+        self.image_size = img_size
+        self.feature_maps = prior_config["feature_map"]
+        self.min_sizes = prior_config["min_size"]
+        self.max_sizes = prior_config["max_size"]
+        self.strides = prior_config["stride"]
+        self.aspect_ratios = prior_config["aspect_ratio"]
+        self.clip = prior_config["clip"]
 
     def __call__(self):
         """Generate SSD Prior Boxes.

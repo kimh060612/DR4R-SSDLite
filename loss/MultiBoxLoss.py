@@ -2,7 +2,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch
 
-from .utils.boxloss import *
+from loss.utils.boxloss import *
 
 class MultiBoxLoss(nn.Module):
     def __init__(self, neg_pos_ratio):

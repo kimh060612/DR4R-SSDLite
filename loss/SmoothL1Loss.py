@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 import torch
-from .utils.boxloss import *
+from loss.utils.boxloss import *
 
 class SmoothL1Loss(nn.Module):
     'Smooth L1 Loss'

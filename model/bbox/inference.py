@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from .bbox import BBox
-from ..utils.utils import batched_nms
+from model.utils.utils import batched_nms
 
 class PostProcessor:
     def __init__(self, IMG_SIZE, loss_type, confidence_thr, max_num):
@@ -9,7 +9,7 @@ class PostProcessor:
         self.width = IMG_SIZE
         self.height = IMG_SIZE
         self.cls_thresh = 0.5
-        self.cls_loss = loss_type # Focal Loss, Cross Entropy
+        self.cls_loss = loss_type
         self.confidence_threshold = confidence_thr
         self.max_num = max_num
 
