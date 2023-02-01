@@ -5,9 +5,6 @@ from loss.utils.boxloss import *
 from loss.SmoothL1Loss import SmoothL1Loss, convert_to_one_hot
 
 class FocalSigmoidLossFuncV2(torch.autograd.Function):
-    '''
-    compute backward directly for better numeric stability
-    '''
     @staticmethod
     def forward(ctx, logits, label, alpha, gamma):
         logits = logits.float()
@@ -40,9 +37,6 @@ class FocalSigmoidLossFuncV2(torch.autograd.Function):
 
     @staticmethod
     def backward(ctx, grad_output):
-        '''
-        compute gradient of focal loss
-        '''
         coeff = ctx.coeff
         probs = ctx.probs
         log_probs = ctx.log_probs
@@ -60,9 +54,6 @@ class FocalSigmoidLossFuncV2(torch.autograd.Function):
 
 
 class FocalLoss(nn.Module):
-    '''
-    This use better formula to compute the gradient, which has better numeric stability
-    '''
     def __init__(self,
                  alpha=0.25,
                  gamma=2,
@@ -82,7 +73,7 @@ class FocalLoss(nn.Module):
         pos_mask = labels > 0
         num_pos = pos_mask.data.long().sum()
 
-        labels = convert_to_one_hot(labels, num_classes+1)
+        labels = convert_to_one_hot(labels, num_classes + 1)
         loss = FocalSigmoidLossFuncV2.apply(confidence, labels, self.alpha, self.gamma)
 
         predicted_locations = predicted_locations.view(-1, 4)[pos_mask]
@@ -104,12 +95,6 @@ class FocalLossV1(nn.Module):
         self.crit = nn.BCEWithLogitsLoss(reduction='none')
 
     def forward(self, confidence, predicted_locations, labels, gt_locations):
-        '''
-        args:
-            logits: tensor of shape (N, ...)
-            label: tensor of shape(N, ...)
-        '''
-
         # compute loss
         confidence = confidence.float() # use fp32 if logits is fp16
         with torch.no_grad():

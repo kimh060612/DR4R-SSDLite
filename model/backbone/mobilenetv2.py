@@ -1,6 +1,6 @@
 import torch.nn as nn
 from model.utils.utils import make_divisible
-from model.utils.baseline import Conv1x1BNReLU6, Conv3x3BNReLU6, ConvBNReLU
+from model.utils.baseline import Conv3x3BNReLU6, ConvBNReLU
 import math
 
 class DepthwiseSeparableConv(nn.Module):

@@ -2,17 +2,18 @@ import json
 import logging
 import os
 from datetime import datetime
-
+from pycocotools.cocoeval import COCOeval
 
 def coco_evaluation(dataset, predictions, output_dir, iteration=None):
     coco_results = []
-    for i, prediction in enumerate(predictions):
+    class_mapper = dataset.contiguous_id_to_coco_id
+    for i in list(predictions.keys()):
+        prediction = predictions[i]
         img_info = dataset.get_img_info(i)
         prediction = prediction.resize((img_info['width'], img_info['height'])).numpy()
         boxes, labels, scores = prediction['boxes'], prediction['labels'], prediction['scores']
 
-        image_id, annotation = dataset.get_annotation(i)
-        class_mapper = dataset.contiguous_id_to_coco_id
+        image_id, _ = dataset.get_annotation(i)
         if labels.shape[0] == 0:
             continue
 
@@ -30,13 +31,14 @@ def coco_evaluation(dataset, predictions, output_dir, iteration=None):
                 for k, box in enumerate(boxes)
             ]
         )
+    if len(coco_results) == 0:
+        return None
     iou_type = 'bbox'
     json_result_file = os.path.join(output_dir, iou_type + ".json")
     logger = logging.getLogger("SSD.inference")
     logger.info('Writing results to {}...'.format(json_result_file))
     with open(json_result_file, "w") as f:
         json.dump(coco_results, f)
-    from pycocotools.cocoeval import COCOeval
     coco_gt = dataset.coco
     coco_dt = coco_gt.loadRes(json_result_file)
     coco_eval = COCOeval(coco_gt, coco_dt, iou_type)

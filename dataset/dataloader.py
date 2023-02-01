@@ -45,7 +45,7 @@ def build_train_dataloader(cfg):
     )
 
 def build_validation_dataloader(cfg):
-    val_transform = build_transforms(cfg, is_train=True)
+    val_transform = build_transforms(cfg, is_train=False)
     args = getDatasetConfig(is_train=False)
     dataset = COCODataset(
         args["data_dir"], 

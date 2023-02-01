@@ -30,6 +30,9 @@ def convert_to_one_hot(x, minleng, ignore_idx=-1):
     # compute output shape
     size = list(x.size())
     size.insert(1, minleng)
+    if x[x != ignore_idx].max() >= minleng:
+        print(x)
+        print(minleng)
     assert x[x != ignore_idx].max() < minleng, "minleng should larger than max value in x"
 
     if ignore_idx < 0:

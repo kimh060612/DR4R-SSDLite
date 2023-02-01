@@ -6,7 +6,8 @@ from model.bbox.bbox import BBox
 from pycocotools.coco import COCO
 
 class COCODataset(Dataset):
-    class_names = ('__background__',
+    class_names = (
+                '__background__',
                 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
                 'train', 'truck', 'boat', 'traffic light', 'fire hydrant',
                 'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog',
@@ -21,7 +22,8 @@ class COCODataset(Dataset):
                 'dining table', 'toilet', 'tv', 'laptop', 'mouse', 'remote',
                 'keyboard', 'cell phone', 'microwave', 'oven', 'toaster', 'sink',
                 'refrigerator', 'book', 'clock', 'vase', 'scissors',
-                'teddy bear', 'hair drier', 'toothbrush')
+                'teddy bear', 'hair drier', 'toothbrush'
+            )
     
     def __init__(self, data_dir, anotation_file, transform=None, target_transform=None, remove_empty=False):
         self.coco = COCO(anotation_file)
@@ -33,9 +35,12 @@ class COCODataset(Dataset):
             self.ids = list(self.coco.imgToAnns.keys())
         else:
             self.ids = list(self.coco.imgs.keys())
-        coco_categories = sorted(self.coco.getCatIds())
+        coco_categories = self.coco.getCatIds()
+        coco_categories.append(0)
+        coco_categories = sorted(coco_categories)
         self.coco_id_to_contiguous_id = {coco_id: i + 1 for i, coco_id in enumerate(coco_categories)}
         self.contiguous_id_to_coco_id = {v: k for k, v in self.coco_id_to_contiguous_id.items()}
+        print(self.contiguous_id_to_coco_id)
         
     def __getitem__(self, index):
         image_id = self.ids[index]
