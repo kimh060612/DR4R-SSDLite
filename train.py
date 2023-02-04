@@ -12,6 +12,9 @@ from dataset.cocoeval import coco_evaluation
 import torch.distributed as dist
 from tqdm import tqdm
 import collections
+import os
+os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 cpu_device = torch.device("cpu")

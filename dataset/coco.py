@@ -36,7 +36,7 @@ class COCODataset(Dataset):
         else:
             self.ids = list(self.coco.imgs.keys())
         coco_categories = self.coco.getCatIds()
-        coco_categories.append(0)
+        # coco_categories.append(0)
         coco_categories = sorted(coco_categories)
         self.coco_id_to_contiguous_id = {coco_id: i + 1 for i, coco_id in enumerate(coco_categories)}
         self.contiguous_id_to_coco_id = {v: k for k, v in self.coco_id_to_contiguous_id.items()}

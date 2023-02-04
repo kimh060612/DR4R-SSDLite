@@ -49,10 +49,10 @@ class PostProcessor:
             # keep only topk scoring predictions
             keep = keep[:self.max_num]
 
-            if self.cls_loss == 'FocalLoss':
-                boxes, scores, labels = boxes[keep], scores[keep], labels[keep] + 1
-            else:
-                boxes, scores, labels = boxes[keep], scores[keep], labels[keep]
+            # if self.cls_loss == 'FocalLoss':
+            #     boxes, scores, labels = boxes[keep], scores[keep], labels[keep] + 1
+            # else:
+            boxes, scores, labels = boxes[keep], scores[keep], labels[keep]
 
             container = BBox(boxes=boxes, labels=labels, scores=scores)
             container.img_width = self.width
