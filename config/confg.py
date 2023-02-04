@@ -18,7 +18,7 @@ def getConfig(backbone="MobileNetV2"):
     return {
         "model": {
             "backbone": backbone,
-            "loss": "FocalLoss",
+            "loss": "FocalLoss", # "MultiBoxLoss",
             "num_classes": 81,
             "CENTER_VARIANCE": 0.1,
             "SIZE_VARIANCE": 0.2,

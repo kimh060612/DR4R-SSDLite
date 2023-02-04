@@ -35,10 +35,11 @@ class COCODataset(Dataset):
             self.ids = list(self.coco.imgToAnns.keys())
         else:
             self.ids = list(self.coco.imgs.keys())
+        cats = self.coco.loadCats(self.coco.getCatIds())
         coco_categories = self.coco.getCatIds()
-        # coco_categories.append(0)
         coco_categories = sorted(coco_categories)
         self.coco_id_to_contiguous_id = {coco_id: i + 1 for i, coco_id in enumerate(coco_categories)}
+        self.coco_id_to_contiguous_id[0] = len(cats) + 1
         self.contiguous_id_to_coco_id = {v: k for k, v in self.coco_id_to_contiguous_id.items()}
         print(self.contiguous_id_to_coco_id)
         
