@@ -52,7 +52,7 @@ def getConfig(backbone="MobileNetV2"):
         "train": {
             "epoch": 200,
             "bsz": 48,
-            "lr": 2e-3,
+            "lr": 1e-3,
             "gamma": 0.1,
             "weight_decay": 5e-4,
             "lr_scheduler": "CosineAnnealingWarmRestarts",
@@ -66,7 +66,7 @@ def getConfig(backbone="MobileNetV2"):
         "test": {
             "nms_thr": 0.5,
             "confidence_thr": 0.5,
-            "max_num": 100
+            "max_num": 1000
         },
         "checkpoint_dir": './checkpoint'
     }

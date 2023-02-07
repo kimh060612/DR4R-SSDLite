@@ -7,7 +7,6 @@ from pycocotools.coco import COCO
 
 class COCODataset(Dataset):
     class_names = (
-                '__background__',
                 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
                 'train', 'truck', 'boat', 'traffic light', 'fire hydrant',
                 'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog',
@@ -22,7 +21,8 @@ class COCODataset(Dataset):
                 'dining table', 'toilet', 'tv', 'laptop', 'mouse', 'remote',
                 'keyboard', 'cell phone', 'microwave', 'oven', 'toaster', 'sink',
                 'refrigerator', 'book', 'clock', 'vase', 'scissors',
-                'teddy bear', 'hair drier', 'toothbrush'
+                'teddy bear', 'hair drier', 'toothbrush',
+                '__background__'
             )
     
     def __init__(self, data_dir, anotation_file, transform=None, target_transform=None, remove_empty=False):

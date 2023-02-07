@@ -41,7 +41,7 @@ class BoxPredictor(nn.Module):
         pi = 0.01
         b = - math.log((1 - pi) / pi)
         nn.init.constant_(layer.bias, b)
-        nn.init.normal_(layer.weight, std=0.01)
+        nn.init.xavier_normal_(layer.weight)
 
     def forward(self, features):
         cls_logits = []

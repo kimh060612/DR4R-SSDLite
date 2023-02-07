@@ -64,18 +64,13 @@ def reduce_loss_dict(loss_dict):
 if __name__ == "__main__":
     cfg = getConfig(backbone="MobileNeXt")
     model = SSDLite(cfg=cfg)
-    print(model)
     model.to(device)
     
-    optimizer = SGD(model.parameters(), 
+    optimizer = AdamW(model.parameters(), 
         lr=cfg["train"]["lr"], 
-        weight_decay=cfg["train"]["weight_decay"], 
-        momentum=0.9
+        weight_decay=cfg["train"]["weight_decay"],
+        eps=1e-6
     )
-    # AdamW(model.parameters(), 
-    #                   lr=cfg["train"]["lr"], 
-    #                   weight_decay=cfg["train"]["weight_decay"]
-    # )
     schedulerMap = {
         "CosineAnnealingWarmRestarts": CosineAnnealingWarmRestarts(optimizer, T_0=15, T_mult=1, eta_min=1e-3),
         "WarmupCosLR": WarmupCosLR(optimizer, max_iter=1600000, warmup_factor=cfg["train"]["gamma"], warmup_iters=500),
@@ -104,7 +99,7 @@ if __name__ == "__main__":
 
                 optimizer.zero_grad()
                 loss.backward()
-                clip_grad_norm_(model.parameters(), 5)
+                clip_grad_norm_(model.parameters(), 1)
                 optimizer.step()
                 scheduler.step()
                 if ((t + 1) % cfg["train"]["log_step"]) == 0:

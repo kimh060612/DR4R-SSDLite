@@ -22,16 +22,14 @@ class PostProcessor:
             scores, boxes = batches_scores[batch_id], batches_boxes[batch_id]  # (N, #CLS) (N, 4)
             num_boxes = scores.shape[0]
             num_classes = scores.shape[1]
-
             boxes = boxes.view(num_boxes, 1, 4).expand(num_boxes, num_classes, 4)
             labels = torch.arange(num_classes, device=device)
             labels = labels.view(1, num_classes).expand_as(scores)
 
             # remove predictions with the background label
-            if self.cls_loss != 'FocalLoss':
-                boxes = boxes[:, 1:]
-                scores = scores[:, 1:]
-                labels = labels[:, 1:]
+            boxes = boxes[:, 1:]
+            scores = scores[:, 1:]
+            labels = labels[:, 1:]
 
             # batch everything, by making every class prediction be a separate instance
             boxes = boxes.reshape(-1, 4)
@@ -49,10 +47,7 @@ class PostProcessor:
             # keep only topk scoring predictions
             keep = keep[:self.max_num]
 
-            if self.cls_loss == 'FocalLoss':
-                boxes, scores, labels = boxes[keep], scores[keep], labels[keep] + 1
-            else:
-                boxes, scores, labels = boxes[keep], scores[keep], labels[keep]
+            boxes, scores, labels = boxes[keep], scores[keep], labels[keep]
 
             container = BBox(boxes=boxes, labels=labels, scores=scores)
             container.img_width = self.width

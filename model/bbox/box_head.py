@@ -19,10 +19,8 @@ class SSDBoxHead(nn.Module):
             out_chans=cfg["model"]["out_channels"]
         )
         # 
-        if cfg["model"]["loss"] == 'FocalLoss':
-            self.loss_evaluator = FocalLoss(0.25, 2)
-        else: # By default, we use MultiBoxLoss
-            self.loss_evaluator = MultiBoxLoss(neg_pos_ratio=cfg["model"]["NEG_POS_RATIO"])
+        use_focal = cfg["model"]["loss"] == 'FocalLoss'
+        self.loss_evaluator = MultiBoxLoss(neg_pos_ratio=cfg["model"]["NEG_POS_RATIO"], num_classes=cfg["model"]["num_classes"], use_focal=use_focal)
 
         self.post_processor = PostProcessor(
             IMG_SIZE = cfg["img_size"],
@@ -52,11 +50,8 @@ class SSDBoxHead(nn.Module):
     def _forward_test(self, cls_logits, bbox_pred):
         if self.priors is None:
             self.priors = PriorBox(self.cfg["img_size"], self.cfg["model"]["priors"])().to(bbox_pred.device)
-        if self.cfg["model"]["loss"] == 'FocalLoss':
-            scores = cls_logits.sigmoid()
-        else:
-            scores = F.softmax(cls_logits, dim=2)
-
+            
+        scores = F.softmax(cls_logits, dim=2)
         boxes = convert_locations_to_boxes(
             bbox_pred, self.priors, self.cfg["model"]["CENTER_VARIANCE"], self.cfg["model"]["SIZE_VARIANCE"]
         )
